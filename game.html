@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>㈜엠오피 리프레시 데이: 여의도 QR 챌린지</title>
+  <title>2026년의 사자성어를 맞춰라!: ㈜엠오피 리프레시 데이</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -62,9 +62,7 @@
       background: #2b7cff;
       color: white;
     }
-    button:active {
-      transform: scale(0.98);
-    }
+    button:active { transform: scale(0.98); }
     .error {
       color: #c62828;
       font-size: 0.85rem;
@@ -77,6 +75,7 @@
       margin-top: 8px;
       display: none;
     }
+
     .team-buttons {
       margin-top: 14px;
       display: flex;
@@ -90,19 +89,21 @@
     }
   </style>
 </head>
-<body>
-  <h1>㈜엠오피 리프레시 데이</h1>
-  <div class="subtitle">여의도 QR 챌린지</div>
 
-  <!-- 시작 & 팀 선택 카드 -->
+<body>
+  <h1>2026년의 사자성어를 맞춰라!</h1>
+  <div class="subtitle">㈜엠오피 리프레시 데이</div>
+
+  <!-- 팀 선택 -->
   <div id="startCard" class="card">
     <div class="mission-text">
-      팀원들과 함께 여의도에서 아래 미션들을 수행해 주세요.
-      각 미션을 완료하면, 2026년을 상징하는 사자성어의
-      힌트 글자 3개를 랜덤한 순서로 얻게 됩니다.
+      팀을 선택하고, 문제를 풀어보세요!
 
-      카페에 도착해서 종이 퍼즐(네모 로직)을 풀고 마지막 글자 1개를 더 얻은 뒤,
-      이 페이지에서 최종 4글자 사자성어를 입력해 주세요.
+      ▸ 문제 1~3 : 이 페이지에서 푸는 퀴즈  
+      ▸ 문제 4 : 행사 시작 시 받은 ‘네모로직 퍼즐 용지’로 직접 풀이
+
+      네모로직 문제를 모두 풀면  
+      2026년의 사자성어를 완성할 수 있습니다.
     </div>
 
     <div class="meta" style="margin-top:10px;">먼저 팀을 선택해 주세요.</div>
@@ -120,308 +121,192 @@
     <div class="mission-title" id="missionTitle"></div>
     <div class="mission-text" id="missionText"></div>
 
-    <div id="answerBlock" style="margin-top:10px;">
-      <input id="answerInput" type="text" placeholder="정답을 입력하세요" />
-    </div>
+    <input id="answerInput" type="text" placeholder="정답을 입력해 주세요" />
 
     <button id="nextBtn">정답 제출</button>
     <div id="errorMsg" class="error"></div>
     <div id="successMsg" class="success"></div>
+
+    <!-- 처음으로 돌아가기 버튼 -->
+    <button id="backToStartBtn" style="background:#ccc; color:#333; margin-top:12px;">
+      처음 화면으로 돌아가기
+    </button>
   </div>
 
-  <!-- 최종 정답 입력 카드 -->
-  <div id="finalCard" class="card" style="display:none;">
-    <div class="mission-title">최종 4글자 사자성어 입력</div>
+  <!-- 네모로직 안내 + 폼 이동 -->
+  <div id="finalInfoCard" class="card" style="display:none;">
+    <div class="mission-title">문제 4 - 네모로직 퍼즐 안내</div>
     <div class="mission-text">
-      야외 미션 3개 + 종이 퍼즐로 얻은 4개의 글자를 조합해
-      최종 사자성어를 입력해 주세요.
+      축하합니다! 문제 1~3까지 모두 완료했습니다. 🎉
+      
+      이제 행사 시작 시 받은  
+      네모로직 퍼즐 용지(문제 4)를 풀어  
+      최종 사자성어를 완성해 주세요.
+
+      ▸ 풀이 장소 : 프랑제리 이크루즈 여의도한강공원점
+
+      정답을 완성한 뒤  
+      아래 버튼을 눌러 ‘최종 정답 제출 페이지’로 이동합니다.
     </div>
 
-    <input id="finalAnswerInput" type="text" placeholder="예: 일취월장" style="margin-top:12px;" />
-    <button id="finalSubmitBtn">정답 제출</button>
+    <button id="goToFormBtn">최종 정답 제출하기</button>
 
-    <div id="finalError" class="error"></div>
-  </div>
-
-  <!-- 최종 정답 의미 카드 -->
-  <div id="finalMeaningCard" class="card" style="display:none;">
-    <div class="mission-title">정답입니다! 🎉</div>
-    <div class="mission-text" id="finalMeaning"></div>
+    <div class="meta" style="margin-top:6px;">
+      제출 시간 기준으로 팀 순위가 집계됩니다.
+    </div>
   </div>
 
   <script>
     // -----------------------------
-    // 0) 사자성어 설정: 馬不停蹄 (마부정제)
-    //    - 웹 정답은 한글 "마부정제" 기준
-    //    - '마'는 종이 네모로직 퍼즐에서 주는 글자 (웹 미션에서는 안 나옴)
+    // 설정
     // -----------------------------
-    const FINAL_ANSWER = "마부정제";
+    const GOOGLE_FORM_URL = "https://forms.gle/9x4oPxUumLe4CdF49";
 
-    // 팀별 미션 순서 (0,1,2는 MISSIONS 배열 인덱스)
     const TEAM_ROUTES = {
-      "A": [0, 1, 2],
-      "B": [1, 2, 0],
-      "C": [2, 0, 1],
-      "D": [1, 0, 2]
+      "A": [0,1,2],
+      "B": [1,2,0],
+      "C": [2,0,1],
+      "D": [1,0,2]
     };
 
-    // -----------------------------
-    // 1) 미션 데이터 정의
-    // -----------------------------
     const MISSIONS = [
       {
-        // 1. 한강 다리 개수
-        title: "미션 1 - 한강 다리 퀴즈",
-        text:
-"한강에는 총 몇 개의 다리가 있을까요?\n" +
-"숫자만 입력해 주세요.",
-        answer: "33",
-        letter: null // 나중에 '부/정/제' 중 하나 랜덤 배정
+        title: "문제 1 - 한강 다리 퀴즈",
+        text: "한강에는 총 몇 개의 다리가 있을까요?\n숫자만 입력해 주세요.",
+        answer: "33"
       },
       {
-        // 2. 인어공주 계단 개수
-        title: "미션 2 - 인어공주 계단 수",
-        text:
-"'한강에서 만난 인어공주' 동상 정면에 있는 계단은\n" +
-"총 몇 개일까요?\n\n" +
-"계단을 세어 본 뒤, 숫자만 입력해 주세요.",
-        answer: "8",
-        letter: null
+        title: "문제 2 - 인어공주 계단 수",
+        text: "'한강에서 만난 인어공주' 동상 정면에 있는 계단은\n총 몇 개일까요?\n숫자만 입력해 주세요.",
+        answer: "8"
       },
       {
-        // 3. 람사르 습지
-        title: "미션 3 - 밤섬 습지 퀴즈",
-        text:
-"한강 밤섬은 2012년, 국제적으로 희귀한 도시 내부 습지로 평가받아\n" +
-"'ㅇㅇㅇ 습지'에 등록되었습니다.\n\n" +
-"여기서 ㅇㅇㅇ에 들어갈 말은 무엇일까요?",
-        answer: "람사르",
-        letter: null
+        title: "문제 3 - 밤섬 습지 퀴즈",
+        text: "밤섬은 국제적으로 희귀한 도시 내부 습지로 평가받아\n'ㅇㅇㅇ 습지'에 등록되었습니다.\n정답을 입력해 주세요.",
+        answer: "람사르"
       }
     ];
 
-    // -----------------------------
-    // 2) DOM 요소
-    // -----------------------------
-    const startCard   = document.getElementById("startCard");
+    const startCard = document.getElementById("startCard");
     const teamButtons = document.querySelectorAll(".team-buttons button");
 
     const missionCard = document.getElementById("missionCard");
     const missionMeta = document.getElementById("missionMeta");
-    const missionTitle= document.getElementById("missionTitle");
+    const missionTitle = document.getElementById("missionTitle");
     const missionText = document.getElementById("missionText");
     const answerInput = document.getElementById("answerInput");
-    const nextBtn     = document.getElementById("nextBtn");
-    const errorMsg    = document.getElementById("errorMsg");
-    const successMsg  = document.getElementById("successMsg");
+    const nextBtn = document.getElementById("nextBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const successMsg = document.getElementById("successMsg");
 
-    const finalCard        = document.getElementById("finalCard");
-    const finalAnswerInput = document.getElementById("finalAnswerInput");
-    const finalSubmitBtn   = document.getElementById("finalSubmitBtn");
-    const finalError       = document.getElementById("finalError");
+    const finalInfoCard = document.getElementById("finalInfoCard");
+    const goToFormBtn = document.getElementById("goToFormBtn");
 
-    const finalMeaningCard = document.getElementById("finalMeaningCard");
-    const finalMeaning     = document.getElementById("finalMeaning");
+    const backToStartBtn = document.getElementById("backToStartBtn");
 
-    // -----------------------------
-    // 3) 상태값
-    // -----------------------------
-    let currentTeam   = null;
-    let currentStep   = 0;      // 팀 루트 내에서 몇 번째 미션인지
-    let collectedLetters = [];  // 힌트로 받은 글자들 (부/정/제 3개)
-    let isTransitioning = false;
+    let currentTeam = null;
+    let currentStep = 0;
+    let isTransition = false;
 
-    // -----------------------------
-    // 4) 배열 셔플 유틸
-    // -----------------------------
-    function shuffleArray(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
       }
-      return arr;
     }
 
-    // -----------------------------
-    // 5) 게임 초기화 (웹 힌트 글자 랜덤 배정)
-    //    - 웹에서는 '부/정/제'만 사용
-    //    - '마'는 종이 퍼즐 전용
-    // -----------------------------
-    function initGame() {
-      const webLetters = ["부", "정", "제"]; // 웹에서 쓸 글자들
-      shuffleArray(webLetters);
-
-      for (let i = 0; i < MISSIONS.length; i++) {
-        MISSIONS[i].letter = webLetters[i];
-      }
-
-      // 종이 퍼즐용 글자
-      const paperLetter = "마";
-      // console.log("웹에서 쓰는 글자들:", webLetters);
-      // console.log("종이 퍼즐용 글자:", paperLetter);
+    function initGame(){
+      const letters = ["부","정","제"];
+      shuffle(letters);
+      MISSIONS.forEach((m,i)=> m.letter = letters[i]);
     }
 
-    // -----------------------------
-    // 6) 팀 선택 → 게임 시작
-    // -----------------------------
-    function startGameForTeam(team) {
-      if (!TEAM_ROUTES[team]) {
-        alert("유효하지 않은 팀입니다. 다시 시도해 주세요.");
-        return;
-      }
-      currentTeam = team;
-      currentStep = 0;
-      collectedLetters = [];
-      isTransitioning = false;
+    teamButtons.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        currentTeam = btn.dataset.team;
+        currentStep = 0;
+        isTransition = false;
 
-      initGame();
+        initGame();
 
-      startCard.style.display = "none";
-      missionCard.style.display = "block";
-      finalCard.style.display = "none";
-      finalMeaningCard.style.display = "none";
+        startCard.style.display="none";
+        missionCard.style.display="block";
+        finalInfoCard.style.display="none";
 
-      showMission();
-    }
-
-    teamButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const team = btn.getAttribute("data-team");
-        startGameForTeam(team);
+        showMission();
       });
     });
 
-    // -----------------------------
-    // 7) 현재 미션 표시
-    // -----------------------------
-    function showMission() {
+    function showMission(){
       const route = TEAM_ROUTES[currentTeam];
-
-      // 모든 미션 완료 → 최종 정답 입력 카드로 이동
-      if (currentStep >= route.length) {
-        missionCard.style.display = "none";
-        finalCard.style.display = "block";
-        finalError.style.display = "none";
-        finalAnswerInput.value = "";
+      if(currentStep >= route.length){
+        missionCard.style.display="none";
+        finalInfoCard.style.display="block";
         return;
       }
 
-      const missionIndex = route[currentStep];
-      const mission = MISSIONS[missionIndex];
+      const m = MISSIONS[route[currentStep]];
+      missionMeta.textContent = `문제 ${currentStep+1} / 3  (${currentTeam}팀)`;
+      missionTitle.textContent = m.title;
+      missionText.textContent  = m.text;
 
-      missionMeta.textContent  = `${currentStep + 1} / ${route.length} 단계 (${currentTeam}팀)`;
-      missionTitle.textContent = mission.title;
-      missionText.textContent  = mission.text;
+      answerInput.value="";
+      errorMsg.style.display="none";
+      successMsg.style.display="none";
+      nextBtn.textContent="정답 제출";
 
-      errorMsg.style.display   = "none";
-      successMsg.style.display = "none";
-      nextBtn.textContent      = "정답 제출";
-      answerInput.value        = "";
-      isTransitioning          = false;
+      isTransition = false;
     }
 
-    // -----------------------------
-    // 8) 미션 정답 제출
-    //    - 정답이면 글자 1개 보여주고, 잠시 후 다음 문제로 이동
-    // -----------------------------
-    nextBtn.addEventListener("click", () => {
-      if (isTransitioning) {
-        return;
-      }
+    nextBtn.addEventListener("click",()=>{
+      if(isTransition) return;
 
       const route = TEAM_ROUTES[currentTeam];
-      const missionIndex = route[currentStep];
-      const mission = MISSIONS[missionIndex];
+      const m = MISSIONS[route[currentStep]];
 
-      const userAnswerRaw = (answerInput.value || "").trim();
-      if (!userAnswerRaw) {
-        errorMsg.textContent = "정답을 입력해 주세요.";
-        errorMsg.style.display = "block";
-        successMsg.style.display = "none";
+      const user = (answerInput.value || "").trim();
+      if(!user){
+        errorMsg.textContent="정답을 입력해 주세요.";
+        errorMsg.style.display="block";
         return;
       }
 
-      const normalize = (s) => s.replace(/\s+/g, "").toLowerCase();
-      const userAnswer = normalize(userAnswerRaw);
-      const correct    = normalize(mission.answer || "");
-
-      if (userAnswer !== correct) {
-        errorMsg.textContent = "정답이 아닙니다. 다시 한 번 확인해 주세요!";
-        errorMsg.style.display = "block";
-        successMsg.style.display = "none";
+      if(user.replace(/\s+/g,"").toLowerCase() !== m.answer.toLowerCase()){
+        errorMsg.textContent="정답이 아닙니다! 다시 확인해 주세요.";
+        errorMsg.style.display="block";
         return;
       }
 
-      // 정답일 때 → 이번 미션에서 배정된 글자 획득
-      const letter = mission.letter;
-      collectedLetters.push(letter);
+      errorMsg.style.display="none";
+      successMsg.style.display="block";
+      successMsg.textContent = "정답입니다!";
 
-      errorMsg.style.display   = "none";
-      successMsg.style.display = "block";
-      successMsg.textContent   = `정답입니다! 이번 미션으로 얻은 글자: "${letter}" (기억해 두세요)`;
+      isTransition = true;
+      nextBtn.textContent="다음 문제로 이동 중...";
 
-      isTransitioning = true;
-      nextBtn.textContent = "다음 문제로 이동 중...";
-
-      setTimeout(() => {
-        currentStep += 1;
+      setTimeout(()=>{
+        currentStep++;
         showMission();
-      }, 1500);
+      },3000);  /* ← 힌트 표시 시간 3초 */
     });
 
-    // 퀴즈 입력칸 엔터키로 제출
-    answerInput.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
-        nextBtn.click();
-      }
+    answerInput.addEventListener("keyup",(e)=>{
+      if(e.key==="Enter") nextBtn.click();
     });
 
-    // -----------------------------
-    // 9) 최종 사자성어 정답 제출
-    // -----------------------------
-    finalSubmitBtn.addEventListener("click", () => {
-      const normalize = (s) => s.replace(/\s+/g, "").trim();
-      const userAnswer = normalize(finalAnswerInput.value || "");
-      const correct    = normalize(FINAL_ANSWER);
-
-      if (!userAnswer) {
-        finalError.textContent = "최종 4글자를 입력해 주세요.";
-        finalError.style.display = "block";
-        return;
-      }
-
-      if (userAnswer !== correct) {
-        finalError.textContent = "정답이 아닙니다. 다시 한 번 확인해 주세요.";
-        finalError.style.display = "block";
-        return;
-      }
-
-      // 정답일 때
-      finalError.style.display = "none";
-      finalCard.style.display  = "none";
-
-      finalMeaning.innerHTML = `
-        <b>馬不停蹄(마부정제)</b><br><br>
-        2026년은 병오년, 붉은 말의 해입니다.<br>
-        馬不停蹄(마부정제)는 말이 발굽을 멈추지 않고<br>
-        쉼 없이 달리는 모습에서 나온 말로,<br>
-        잠시도 머뭇거리지 않고 끊임없이 나아가는 태도를 의미합니다.<br><br>
-        2026년 한 해 동안 ㈜엠오피가<br>
-        멈추지 않는 말처럼 계속해서 도전하고,<br>
-        성장의 속도를 늦추지 않겠다는 다짐을 담아<br>
-        이 사자성어를 선정했습니다.<br><br>
-        오늘 리프레시 데이에서 충전한 에너지를 바탕으로,<br>
-        각자의 자리에서 힘차게 앞으로 달려가 보아요. 🐎
-      `;
-      finalMeaningCard.style.display = "block";
+    // 처음 화면으로 이동
+    backToStartBtn.addEventListener("click",()=>{
+      currentTeam = null;
+      currentStep = 0;
+      missionCard.style.display="none";
+      finalInfoCard.style.display="none";
+      startCard.style.display="block";
     });
 
-    // 최종 정답 입력칸 엔터키로 제출
-    finalAnswerInput.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
-        finalSubmitBtn.click();
-      }
+    goToFormBtn.addEventListener("click",()=>{
+      window.location.href = GOOGLE_FORM_URL;
     });
   </script>
+
 </body>
 </html>
