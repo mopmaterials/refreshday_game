@@ -176,7 +176,7 @@
     // -----------------------------
     // 설정
     // -----------------------------
-    const GOOGLE_FORM_URL = "https://docs.google.com/forms/xxxxxxxxxxxx";
+    const GOOGLE_FORM_URL = "https://forms.gle/TNsYUCenM5Jce3mP9";
 
     const TEAM_ROUTES = {
       "A": [0,1,2],
@@ -198,7 +198,7 @@
       },
       {
         title: "문제 3 - 밤섬 습지 퀴즈",
-        text: "밤섬은 2012년 희귀한 도시 내부 습지로 평가받아\n'ㅇㅇㅇ 습지'에 등록되었습니다.\n정답을 입력해 주세요.",
+        text: "밤섬은 2012년 희귀한 도시 내부 습지로 평가받아\n'ㅇㅇㅇ 습지'에 등록되었습니다.\nㅇㅇㅇ에 들어갈 정답을 입력해 주세요.",
         answer: "람사르"
       }
     ];
@@ -283,7 +283,7 @@
 
       const user = (answerInput.value || "").trim();
       if(!user){
-        errorMsg.textContent="정답을 입력해 주세요.";
+        errorMsg.textContent="정답을 입력하세요.";
         errorMsg.style.display="block";
         successMsg.style.display="none";
         return;
@@ -332,4 +332,5 @@
 
 </body>
 </html>
+
 
