@@ -14,7 +14,7 @@
     }
     h1 {
       font-size: 1.4rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
     }
     .subtitle {
       font-size: 0.9rem;
@@ -32,11 +32,11 @@
     .meta {
       font-size: 0.85rem;
       color: #777;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .mission-title {
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .mission-text {
       font-size: 0.95rem;
@@ -75,7 +75,6 @@
       margin-top: 8px;
       display: none;
     }
-
     .team-buttons {
       margin-top: 14px;
       display: flex;
@@ -86,6 +85,22 @@
       background: #e6ebff;
       color: #1f3a93;
       flex: 1 1 45%;
+    }
+    .mission-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .back-btn {
+      background: #e0e0e0;
+      color: #333;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      margin-top: 0;
     }
   </style>
 </head>
@@ -99,10 +114,10 @@
     <div class="mission-text">
       팀을 선택하고, 문제를 풀어보세요!
 
-      ▸ 문제 1~3 : 이 페이지에서 푸는 퀴즈  
+      ▸ 문제 1~3 : 이 페이지에서 푸는 퀴즈
       ▸ 문제 4 : 행사 시작 시 받은 ‘네모로직 퍼즐 용지’로 직접 풀이
 
-      네모로직 문제를 모두 풀면  
+      4 문제를 모두 풀면
       2026년의 사자성어를 완성할 수 있습니다.
     </div>
 
@@ -117,8 +132,14 @@
 
   <!-- 미션 카드 -->
   <div id="missionCard" class="card" style="display:none;">
-    <div class="meta" id="missionMeta"></div>
-    <div class="mission-title" id="missionTitle"></div>
+    <div class="mission-header">
+      <div>
+        <div class="meta" id="missionMeta"></div>
+        <div class="mission-title" id="missionTitle"></div>
+      </div>
+      <button id="backToStartBtn" class="back-btn">처음 화면으로</button>
+    </div>
+
     <div class="mission-text" id="missionText"></div>
 
     <input id="answerInput" type="text" placeholder="정답을 입력해 주세요" />
@@ -126,11 +147,6 @@
     <button id="nextBtn">정답 제출</button>
     <div id="errorMsg" class="error"></div>
     <div id="successMsg" class="success"></div>
-
-    <!-- 처음으로 돌아가기 버튼 -->
-    <button id="backToStartBtn" style="background:#ccc; color:#333; margin-top:12px;">
-      처음 화면으로 돌아가기
-    </button>
   </div>
 
   <!-- 네모로직 안내 + 폼 이동 -->
@@ -139,14 +155,14 @@
     <div class="mission-text">
       축하합니다! 문제 1~3까지 모두 완료했습니다. 🎉
       
-      이제 행사 시작 시 받은  
-      네모로직 퍼즐 용지(문제 4)를 풀어  
+      이제 행사 시작 시 받은
+      네모로직 퍼즐 용지(문제 4)를 풀어
       최종 사자성어를 완성해 주세요.
 
       ▸ 풀이 장소 : 프랑제리 이크루즈 여의도한강공원점
 
-      정답을 완성한 뒤  
-      아래 버튼을 눌러 ‘최종 정답 제출 페이지’로 이동합니다.
+      정답을 완성한 뒤
+      아래 버튼을 눌러 ‘최종 제출용 구글폼’으로 이동합니다.
     </div>
 
     <button id="goToFormBtn">최종 정답 제출하기</button>
@@ -160,7 +176,7 @@
     // -----------------------------
     // 설정
     // -----------------------------
-    const GOOGLE_FORM_URL = "https://forms.gle/9x4oPxUumLe4CdF49";
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/xxxxxxxxxxxx";
 
     const TEAM_ROUTES = {
       "A": [0,1,2],
@@ -216,7 +232,7 @@
     }
 
     function initGame(){
-      const letters = ["부","정","제"];
+      const letters = ["부","정","제"];   // 힌트 글자 3개
       shuffle(letters);
       MISSIONS.forEach((m,i)=> m.letter = letters[i]);
     }
@@ -239,6 +255,7 @@
 
     function showMission(){
       const route = TEAM_ROUTES[currentTeam];
+
       if(currentStep >= route.length){
         missionCard.style.display="none";
         finalInfoCard.style.display="block";
@@ -268,18 +285,22 @@
       if(!user){
         errorMsg.textContent="정답을 입력해 주세요.";
         errorMsg.style.display="block";
+        successMsg.style.display="none";
         return;
       }
 
       if(user.replace(/\s+/g,"").toLowerCase() !== m.answer.toLowerCase()){
         errorMsg.textContent="정답이 아닙니다! 다시 확인해 주세요.";
         errorMsg.style.display="block";
+        successMsg.style.display="none";
         return;
       }
 
+      // 정답일 때: 힌트 글자 보여주기 (3초 유지)
       errorMsg.style.display="none";
       successMsg.style.display="block";
-      successMsg.textContent = "정답입니다!";
+      successMsg.textContent =
+        `정답입니다! 이번 문제의 힌트 글자를 적어 두세요: "${m.letter}"`;
 
       isTransition = true;
       nextBtn.textContent="다음 문제로 이동 중...";
@@ -287,7 +308,7 @@
       setTimeout(()=>{
         currentStep++;
         showMission();
-      },3000);  /* ← 힌트 표시 시간 3초 */
+      },3000);  // 3초 동안 힌트 메시지 보이게
     });
 
     answerInput.addEventListener("keyup",(e)=>{
@@ -303,6 +324,7 @@
       startCard.style.display="block";
     });
 
+    // 구글폼으로 이동
     goToFormBtn.addEventListener("click",()=>{
       window.location.href = GOOGLE_FORM_URL;
     });
